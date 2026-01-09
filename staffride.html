@@ -1,229 +1,105 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MDARNG Medical Detachment – Staff Ride Info (National Museum of Civil War Medicine)</title>
-  <meta name="description" content="Logistics and schedule for the MDARNG Medical Detachment staff ride to the National Museum of Civil War Medicine." />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <title>Staff Ride 2025</title>
   <style>
-    :root{
-      --bg:#0b1020;        /* deep navy */
-      --card:#121935;      /* card body */
-      --muted:#9fb0ff;     /* soft periwinkle text */
-      --text:#f2f5ff;      /* near white */
-      --accent:#70a0ff;    /* link + accents */
-      --accent-2:#52e0b3;  /* highlights */
-      --warn:#ffd066;      /* callouts */
-      --danger:#ff8e8e;    /* important */
-      --shadow:0 10px 30px rgba(0,0,0,.35);
-      --radius:18px;
+    html, body { height: 100%; margin: 0; }
+    .topbar {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      padding: 10px 12px;
+      border-bottom: 1px solid #e5e5e5;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
     }
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1200px 700px at 10% -10%, #162050 0%, transparent 60%),
-                  radial-gradient(1000px 600px at 100% 0%, #0f1740 0%, transparent 60%),
-                  var(--bg);
-      color:var(--text);
-      line-height:1.55;
+    .topbar a { text-decoration: none; }
+    .frameWrap { height: calc(100vh - 44px); }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+      background: white;
     }
-    .wrap{max-width:1100px;margin:0 auto;padding:28px}
-    header{
-      display:flex;gap:18px;align-items:center;justify-content:space-between;margin-bottom:22px;
+    .hint {
+      font-size: 13px;
+      opacity: 0.75;
     }
-    .title{display:flex;gap:16px;align-items:center}
-    .title h1{font-size:clamp(1.2rem,2.2vw,2rem);margin:0;font-weight:800}
-    .chips{display:flex;gap:8px;flex-wrap:wrap}
-    .chip{padding:6px 10px;border-radius:999px;background:linear-gradient(180deg,#23306b,#192456);
-      color:#dfe6ff;font-size:.85rem;border:1px solid rgba(255,255,255,.08)}
-    .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015));
-      border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow);border-radius:var(--radius);overflow:hidden}
-    .card + .card{margin-top:18px}
-    .card h2{margin:0;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.06);font-size:1.05rem}
-    .card .body{padding:18px 20px}
-    a{color:var(--accent);text-decoration:none}
-    a:hover{text-decoration:underline}
-    .grid{display:grid;gap:18px}
-    @media (min-width:900px){
-      .grid.cols-2{grid-template-columns:1.05fr .95fr}
-      .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+    button {
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
     }
-    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-    .btn{
-      display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;
-      background:linear-gradient(180deg,#2a397c,#1b275b);border:1px solid rgba(255,255,255,.12);
-      color:#e9efff;font-weight:600;text-decoration:none
-    }
-    .btn:focus{outline:2px solid var(--accent-2);outline-offset:1px}
-    .callout{border-left:4px solid var(--warn);background:rgba(255,208,102,.08);padding:12px 14px;border-radius:12px}
-    .important{border-left:4px solid var(--danger);background:rgba(255,142,142,.08)}
-    .kps{display:grid;gap:10px}
-    .kp{display:flex;gap:10px;align-items:flex-start;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px}
-    .kp svg{flex:0 0 auto;opacity:.9}
-    .kp .kpt{font-weight:700}
-    .schedule{display:grid;gap:10px}
-    .row{display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:start;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px}
-    .address{font-family:ui-monospace, Menlo, Consolas, monospace;opacity:.95}
-    iframe{width:100%;aspect-ratio:16/10;border:0;border-radius:14px}
-    footer{opacity:.8;font-size:.9rem;margin:22px 0 10px}
-    .mini{font-size:.95rem;color:var(--muted)}
-    .tag{display:inline-block;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-size:.8rem;color:#e8eeff}
-    .muted{color:var(--muted)}
-    .two-col{columns:1}
-    @media(min-width:860px){.two-col{columns:2;column-gap:18px}}
-    .two-col p{break-inside:avoid}
-    .sr-only{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="title">
-        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M4 5h16M4 12h16M4 19h16" stroke="#70a0ff" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
-        <div>
-          <h1>MDARNG Medical Detachment — Staff Ride<br><span class="mini">National Museum of Civil War Medicine (NMCWM)</span></h1>
-          <div class="chips">
-            <span class="chip">Frederick, Maryland</span>
-            <span class="chip">Uniform: Appropriate Civilian Attire</span>
-            <span class="chip">POC: Brantmier (240) 446-8805 - MD ARNG MED DET</span>
-          </div>
-        </div>
-      </div>
-      <div class="chips">
-        <a class="btn" target="_blank" rel="noopener" href="https://www.civilwarmed.org/" title="Open Museum Website">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 3h7v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 14L21 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M21 14v7h-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M14 21L3 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          Museum Site
-        </a>
-      </div>
-    </header>
-
-    <section class="grid cols-2">
-      <div class="card">
-        <h2>Report Options</h2>
-        <div class="body kps">
-          <div class="kp">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="#52e0b3" stroke-width="1.6"/><path d="M8 12h8" stroke="#52e0b3" stroke-width="1.6" stroke-linecap="round"/></svg>
-            <div>
-              <div class="kpt">Option 1 — Self‑Report to NMCWM (Arrive NLT 0930)</div>
-              <div>
-                <div class="address">48 E Patrick St, Frederick, MD 21701</div>
-                <div class="btns">
-                  <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=48+E+Patrick+St,+Frederick,+MD+21701">Directions</a>
-                  <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/place/48+E+Patrick+St,+Frederick,+MD+21701/">Open in Maps</a>
-                </div>
-              </div>
-              <div class="callout" style="margin-top:10px">
-                <strong>Parking:</strong> Free until <strong>1400</strong>, then <strong>$1/hour</strong>. Closest garage: <em>Carroll Creek Parking Garage</em>.
-              </div>
-            </div>
-          </div>
-
-          <div class="kp">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="18" height="12" rx="2" stroke="#52e0b3" stroke-width="1.6"/><path d="M6 17v2h12v-2" stroke="#52e0b3" stroke-width="1.6"/></svg>
-            <div>
-              <div class="kpt">Option 2 — Unit Shuttle</div>
-              <div>Form up at <strong>Bldg 205</strong> before <strong>0830</strong> for shuttle SP to Frederick, MD.</div>
-              <div class="mini muted">Confirm exact pickup point and manifest with your OIC/NCOIC.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Timeline</h2>
-        <div class="body schedule">
-          <div class="row">
-            <div class="muted">0930</div>
-            <div>Arrive NLT at NMCWM check‑in (if self‑reporting)</div>
-          </div>
-          <div class="row">
-            <div class="muted">1000</div>
-            <div><strong>Hospital Site Walking Tour</strong> — Frederick, MD</div>
-          </div>
-          <div class="row">
-            <div class="muted">1130–1300</div>
-            <div>Lunch — <a target="_blank" rel="noopener" href="#mymap">See Restaurant Map</a></div>
-          </div>
-          <div class="row">
-            <div class="muted">1300</div>
-            <div><strong>National Museum of Civil War Medicine</strong> gallery tour</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="card">
-      <h2 id="parking">Parking & Notes</h2>
-      <div class="body two-col">
-        <p><span class="tag">Parking</span> Free until <strong>1400</strong>, then <strong>$1/hour</strong>. Closest option is <em>Carroll Creek Parking Garage</em>. Allow time to park and walk to the museum.</p>
-        <p><span class="tag">Uniform/Weather</span> Dress appropriate for a short city walk. Bring weather‑appropriate layers and water.</p>
-        <p><span class="tag">Accountability</span> Leaders track accountability at 0930 (self‑report) and at shuttle SP (0830). Ensure contact info is current.</p>
-        <p><span class="tag">Accessibility</span> The walking tour is in downtown Frederick on paved/brick sidewalks. If you require accommodations, notify leadership NLT 72 hours prior.</p>
-      </div>
+  <div class="topbar">
+    <div>
+      <span class="hint">Viewing Staff Ride content</span>
+      <span id="status" class="hint"></span>
     </div>
-
-    <div class="card" id="mymap">
-      <h2>Restaurants & Parking Map (Interactive)</h2>
-      <div class="body">
-        <p class="muted">Use the map below to explore nearby restaurants and parking. Open it in a new tab for full‑screen view. Museum location is the yellow pin.</p>
-        <div class="btns" style="margin: 6px 0 14px">
-          <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/d/embed?mid=1ZftpvJ0IHsEWj0Ovm87d6qjSj6_KV6g">Open Full Map</a>
-          <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/d/edit?mid=1ZftpvJ0IHsEWj0Ovm87d6qjSj6_KV6g&usp=sharing">Edit Link (owners)</a>
-        </div>
-        <iframe title="Restaurants & Parking Map" loading="lazy" src="https://www.google.com/maps/d/embed?mid=1ZftpvJ0IHsEWj0Ovm87d6qjSj6_KV6g"></iframe>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Quick Links</h2>
-      <div class="body btns">
-        <a class="btn" target="_blank" rel="noopener" href="https://www.civilwarmed.org/visit/">Visitor Info</a>
-        <a class="btn" target="_blank" rel="noopener" href="https://www.civilwarmed.org/">NMCWM Homepage</a>
-        <a class="btn" target="_blank" rel="noopener" href="https://www.visitfrederick.org/parking/">Frederick Parking Overview</a>
-        <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=48+E+Patrick+St,+Frederick,+MD+21701">Directions to Museum</a>
-      </div>
-    </div>
-
-    <footer>
-      <div class="mini">This page is a single‑file, print‑friendly brief for the MDARNG Medical Detachment staff ride. Share via email or SMS; works offline once loaded (map requires connectivity).</div>
-    </footer>
-  </div>
-  <div class="card" id="restaurantTable">
-  <h2>Nearby Restaurants (Lunch Options)</h2>
-  <div class="body">
-    <p class="muted">These restaurants are within walking distance of the museum.</p>
-    <div style="overflow-x:auto;">
-      <table style="width:100%; border-collapse:collapse; font-size:0.95rem;">
-        <thead>
-          <tr style="background:rgba(255,255,255,.05);">
-            <th style="text-align:left; padding:8px; border-bottom:1px solid rgba(255,255,255,.15);">Restaurant Name</th>
-            <th style="text-align:left; padding:8px; border-bottom:1px solid rgba(255,255,255,.15);">Cuisine Type</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">JoJo's Restaurant &amp; Tap House</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">American</td></tr>
-          <tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">Lazy Fish</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">Asian Fusion/Sushi</td></tr>
-          <tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">Tsunami</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">Japanese/Ramen</td></tr>
-          <tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">Shuckin' Shack Oyster Bar</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">Seafood/American</td></tr>
-          <tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">Plaza Mexico Restaurant</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">Mexican</td></tr>
-          <tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">Hooch and Banter</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">Modern American with French Influence</td></tr>
-          <tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">Maxwell's Burgers &amp; Shakes</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">American/Hamburgers</td></tr>
-          <tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">Brewers Alley</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">American Brewpub</td></tr>
-          <tr><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">White Rabbit Gastropub</td><td style="padding:8px; border-bottom:1px solid rgba(255,255,255,.08);">Gastropub (Pizzas, Pub Fare)</td></tr>
-          <tr><td style="padding:8px;">Sabor de Cuba</td><td style="padding:8px;">Cuban</td></tr>
-        </tbody>
-      </table>
+    <div>
+      <a href="staffride_editor.html">Open editor</a>
+      <button id="resetBtn" type="button">Reset to default</button>
     </div>
   </div>
+
+  <div class="frameWrap">
+    <iframe id="viewFrame" sandbox="allow-same-origin allow-forms allow-popups allow-modals allow-scripts"></iframe>
   </div>
+
+  <script>
+    const STORAGE_KEY = "staffride_html";
+
+    // Replace this string with your current staffride HTML (the content you said you have now).
+    // Tip: paste your existing staffride.html body here (full HTML is fine).
+    const defaultHtml = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Staff Ride 2025</title>
+</head>
+<body>
+  <h1>Staff Ride 2025</h1>
+  <p>Replace defaultHtml with your actual current content.</p>
+</body>
+</html>`;
+
+    function getSavedHtml() {
+      return localStorage.getItem(STORAGE_KEY);
+    }
+
+    function setFrameHtml(html) {
+      const frame = document.getElementById("viewFrame");
+      frame.srcdoc = html;
+    }
+
+    function updateStatus(usingSaved) {
+      const el = document.getElementById("status");
+      el.textContent = usingSaved ? " (using saved content)" : " (using default content)";
+    }
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEY);
+      setFrameHtml(defaultHtml);
+      updateStatus(false);
+      alert("Reset complete. Now showing default content.");
+    });
+
+    const saved = getSavedHtml();
+    if (saved && saved.trim().length) {
+      setFrameHtml(saved);
+      updateStatus(true);
+    } else {
+      setFrameHtml(defaultHtml);
+      updateStatus(false);
+    }
+  </script>
 </body>
 </html>
-
-
-
