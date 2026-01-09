@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Staff Ride Editor</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 16px;
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    button {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+    }
+    textarea {
+      width: 100%;
+      height: 40vh;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      box-sizing: border-box;
+    }
+    iframe {
+      width: 100%;
+      height: 40vh;
+      border: 1px solid #ddd;
+      border-radius: ls
+      12px;
+      margin-top: 12px;
+    }
+    .hint { opacity: 0.75; font-size: 13px; }
+    .ok { color: #0a7; }
+  </style>
+</head>
+<body>
+  <div class="row">
+    <a href="staffride.html">Back to viewer</a>
+    <span class="hint" id="status"></span>
+  </div>
+
+  <div class="row">
+    <button id="loadBtn" type="button">Load saved</button>
+    <button id="saveBtn" type="button">Save</button>
+    <button id="previewBtn" type="button">Preview</button>
+    <button id="clearBtn" type="button">Clear saved</button>
+    <button id="exportBtn" type="button">Export to file</button>
+  </div>
+
+  <textarea id="htmlBox" placeholder="Paste full HTML here (including <html>...</html>) or just a fragment."></textarea>
+
+  <iframe id="previewFrame" sandbox="allow-same-origin allow-forms allow-popups allow-modals allow-scripts"></iframe>
+
+  <script>
+    const STORAGE_KEY = "staffride_html";
+
+    const box = document.getElementById("htmlBox");
+    const status = document.getElementById("status");
+    const frame = document.getElementById("previewFrame");
+
+    function wrapIfFragment(input) {
+      const s = (input || "").trim();
+      const looksFullDoc = /<html[\s>]/i.test(s) || /<!doctype html>/i.test(s);
+      if (looksFullDoc) return s;
+
+      // If they paste just a snippet, wrap it into a basic HTML doc.
+      return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Staff Ride 2025</title>
+</head>
+<body>
+${s}
+</body>
+</html>`;
+    }
+
+    function setStatus(msg, ok=false) {
+      status.textContent = msg;
+      status.className = ok ? "hint ok" : "hint";
+    }
+
+    document.getElementById("loadBtn").addEventListener("click", () => {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      box.value = saved || "";
+      setStatus(saved ? "Loaded saved content." : "No saved content found.");
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      const html = wrapIfFragment(box.value);
+      localStorage.setItem(STORAGE_KEY, html);
+      setStatus("Saved. Open the viewer to see updates.", true);
+    });
+
+    document.getElementById("previewBtn").addEventListener("click", () => {
+      const html = wrapIfFragment(box.value);
+      frame.srcdoc = html;
+      setStatus("Preview updated.", true);
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEY);
+      setStatus("Cleared saved content.");
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      const html = wrapIfFragment(box.value);
+      const blob = new Blob([html], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "staffride_export.html";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      URL.revokeObjectURL(url);
+      setStatus("Exported as staffride_export.html", true);
+    });
+
+    // Auto-load saved on open
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      box.value = saved;
+      frame.srcdoc = saved;
+      setStatus("Loaded saved content.", true);
+    } else {
+      setStatus("No saved content yet. Paste HTML and click Save.");
+    }
+  </script>
+</body>
+</html>
