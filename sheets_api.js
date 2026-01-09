@@ -1,11 +1,10 @@
 // sheets_api.js
 // Shared helper for viewer.html and editor.html
 // Single canonical content key is handled by the caller (no multi-page routing).
-// https://script.google.com/macros/s/AKfycbxNPJGn-2Rxm7cx1two7aBQrvM0atcytraXdqnnm44a8aKDf9-7rdR2LHU3XxdmWPU/exec
 // Requires an Apps Script Web App that supports:
 //  GET  ?action=get&key=staffride_main
-//  POST ?action=save  JSON { key, html, password }
-//  POST ?action=clear JSON { key, password }
+//  POST ?action=save  form { key, html, password }
+//  POST ?action=clear form { key, password }
 
 const SheetsAPI = (() => {
   function escapeHtml(s) {
@@ -74,7 +73,7 @@ ${s}
 
     const text = await resp.text();
     let data = null;
-    try { data = JSON.parse(text); } catch { /* ignore */ }
+    try { data = JSON.parse(text); } catch {}
 
     if (!resp.ok) {
       return { ok: false, status: resp.status, error: (data && data.error) ? data.error : text };
@@ -95,61 +94,61 @@ ${s}
     return { ok: true, status: resp.status, key, html: text, updated_at: "", updated_by: "" };
   }
 
- async function saveContent({ apiUrl, key, html, password = "" }) {
-  const url = new URL(apiUrl);
-  url.searchParams.set("action", "save");
+  async function saveContent({ apiUrl, key, html, password = "" }) {
+    const url = new URL(apiUrl);
+    url.searchParams.set("action", "save");
 
-  const form = new URLSearchParams();
-  form.set("key", key || "staffride_main");
-  form.set("html", String(html || ""));
-  form.set("password", String(password || ""));
+    const form = new URLSearchParams();
+    form.set("key", key || "staffride_main");
+    form.set("html", String(html || ""));
+    form.set("password", String(password || ""));
 
-  const resp = await fetch(url.toString(), {
-    method: "POST",
-    cache: "no-store",
-    // SIMPLE REQUEST -> avoids OPTIONS preflight
-    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-    body: form.toString()
-  });
+    const resp = await fetch(url.toString(), {
+      method: "POST",
+      cache: "no-store",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body: form.toString()
+    });
 
-  const text = await resp.text();
-  let data = null;
-  try { data = JSON.parse(text); } catch {}
+    const text = await resp.text();
+    let data = null;
+    try { data = JSON.parse(text); } catch {}
 
-  if (!resp.ok) return { ok: false, status: resp.status, error: (data && data.error) ? data.error : text };
-  return (data && typeof data === "object")
-    ? { ok: !!data.ok, status: resp.status, key: data.key, html: data.html || "", updated_at: data.updated_at || "", updated_by: data.updated_by || "", error: data.error || "" }
-    : { ok: true, status: resp.status, key, html: text, updated_at: "", updated_by: "" };
-}
+    if (!resp.ok) {
+      return { ok: false, status: resp.status, error: (data && data.error) ? data.error : text };
+    }
 
-async function clearContent({ apiUrl, key, password = "" }) {
-  const url = new URL(apiUrl);
-  url.searchParams.set("action", "clear");
+    return (data && typeof data === "object")
+      ? { ok: !!data.ok, status: resp.status, key: data.key, html: data.html || "", updated_at: data.updated_at || "", updated_by: data.updated_by || "", error: data.error || "" }
+      : { ok: true, status: resp.status, key, html: text, updated_at: "", updated_by: "" };
+  }
 
-  const form = new URLSearchParams();
-  form.set("key", key || "staffride_main");
-  form.set("password", String(password || ""));
+  async function clearContent({ apiUrl, key, password = "" }) {
+    const url = new URL(apiUrl);
+    url.searchParams.set("action", "clear");
 
-  const resp = await fetch(url.toString(), {
-    method: "POST",
-    cache: "no-store",
-    // SIMPLE REQUEST -> avoids OPTIONS preflight
-    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-    body: form.toString()
-  });
+    const form = new URLSearchParams();
+    form.set("key", key || "staffride_main");
+    form.set("password", String(password || ""));
 
-  const text = await resp.text();
-  let data = null;
-  try { data = JSON.parse(text); } catch {}
+    const resp = await fetch(url.toString(), {
+      method: "POST",
+      cache: "no-store",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body: form.toString()
+    });
 
-  if (!resp.ok) return { ok: false, status: resp.status, error: (data && data.error) ? data.error : text };
-  return (data && typeof data === "object")
-    ? { ok: !!data.ok, status: resp.status, key: data.key, html: data.html || "", updated_at: data.updated_at || "", updated_by: data.updated_by || "", error: data.error || "" }
-    : { ok: true, status: resp.status, key, html: "", updated_at: "", updated_by: "" };
-}
+    const text = await resp.text();
+    let data = null;
+    try { data = JSON.parse(text); } catch {}
 
+    if (!resp.ok) {
+      return { ok: false, status: resp.status, error: (data && data.error) ? data.error : text };
+    }
 
-    return { ok: true, status: resp.status, key, html: "", updated_at: "", updated_by: "" };
+    return (data && typeof data === "object")
+      ? { ok: !!data.ok, status: resp.status, key: data.key, html: data.html || "", updated_at: data.updated_at || "", updated_by: data.updated_by || "", error: data.error || "" }
+      : { ok: true, status: resp.status, key, html: "", updated_at: "", updated_by: "" };
   }
 
   return {
