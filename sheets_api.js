@@ -1,5 +1,7 @@
 // sheets_api.js
 // Shared helper for viewer.html and editor.html
+// Single canonical content key is handled by the caller (no multi-page routing).
+// https://script.google.com/macros/s/AKfycbxNPJGn-2Rxm7cx1two7aBQrvM0atcytraXdqnnm44a8aKDf9-7rdR2LHU3XxdmWPU/exec
 // Requires an Apps Script Web App that supports:
 //  GET  ?action=get&key=staffride_main
 //  POST ?action=save  JSON { key, html, password }
@@ -39,6 +41,7 @@ const SheetsAPI = (() => {
         a { word-break: break-word; }
         img { max-width: 100%; height: auto; }
         hr { border: 0; border-top: 1px solid #eee; margin: 18px 0; }
+        code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
       </style>` : "";
 
     return `<!doctype html>
@@ -89,7 +92,6 @@ ${s}
       };
     }
 
-    // Fallback: endpoint returned raw HTML
     return { ok: true, status: resp.status, key, html: text, updated_at: "", updated_by: "" };
   }
 
@@ -168,20 +170,10 @@ ${s}
     return { ok: true, status: resp.status, key, html: "", updated_at: "", updated_by: "" };
   }
 
-  function getUrlParam(name, fallback = "") {
-    try {
-      const u = new URL(window.location.href);
-      return u.searchParams.get(name) || fallback;
-    } catch {
-      return fallback;
-    }
-  }
-
   return {
     getContent,
     saveContent,
     clearContent,
-    wrapIfFragment,
-    getUrlParam
+    wrapIfFragment
   };
 })();
