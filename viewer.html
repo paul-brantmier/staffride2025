@@ -3,419 +3,135 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Staff Ride Editor</title>
+  <title>Viewer</title>
 
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
   <style>
-    :root {
-      --border:#e5e5e5;
-      --muted: rgba(0,0,0,.65);
-      --bg:#fff;
-      --panel:#fafafa;
-      --radius:14px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    }
-    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:var(--bg); }
+    :root { --border:#e5e5e5; --muted:rgba(0,0,0,.65); }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
     .bar {
-      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
       padding:10px 12px; border-bottom:1px solid var(--border);
     }
     .left { display:flex; gap:12px; align-items:baseline; flex-wrap:wrap; }
     .title { font-weight:600; }
     .meta { font-size:12px; color:var(--muted); }
-    .ok { color:#0a7; }
-    .warn { color:#b60; }
-    .err { color:#b00; }
-    a { text-decoration:none; }
     .btn {
       padding:7px 10px; border:1px solid #ccc; border-radius:10px; background:#fff; cursor:pointer;
     }
-    .wrap { padding:12px; }
-    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:10px 0; }
-    input[type="password"], input[type="text"] {
-      padding:8px 10px; border:1px solid #ddd; border-radius:12px; min-width:220px;
-    }
-    textarea {
-      width:100%;
-      height:42vh;
-      font-family: var(--mono);
-      font-size: 13px;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: var(--radius);
-      box-sizing: border-box;
-      background: var(--bg);
-      resize: vertical;
-    }
+    .wrap { height: calc(100vh - 52px); }
     iframe {
-      width:100%;
-      height:42vh;
-      border:1px solid #ddd;
-      border-radius: var(--radius);
-      background:#fff;
-      display:block;
+      width:100%; height:100%; border:0; display:block; background:#fff;
     }
-    .grid {
-      display:grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap:12px;
-      align-items:start;
+    .err {
+      padding:16px; color:#b00; font-size:14px;
     }
-    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
-    .card {
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--panel);
-      padding:12px;
-    }
-    .card h2 { margin: 0 0 8px 0; font-size: 15px; }
-    .small { font-size: 12px; color: var(--muted); }
-    .drop {
-      border: 2px dashed #bbb;
-      border-radius: var(--radius);
-      padding: 14px;
-      background: #fff;
-    }
-    .drop strong { display:block; margin-bottom:6px; }
+    a { text-decoration:none; }
   </style>
 </head>
+
 <body>
   <div class="bar">
     <div class="left">
-      <div class="title">Staff Ride Editor</div>
-      <div id="status" class="meta">Ready.</div>
+      <div class="title">Viewer</div>
+      <div id="status" class="meta">Loading…</div>
     </div>
-    <div class="right meta">
-      <a href="viewer.html">Open viewer</a>
+    <div class="right">
+      <button id="refreshBtn" class="btn" type="button">Refresh</button>
+      <a class="meta" href="editor.html">Open editor</a>
     </div>
   </div>
 
   <div class="wrap">
-    <div class="row">
-      <span class="meta">Content key:</span>
-      <input id="keyInput" type="text" value="staffride_main" />
-      <span class="meta">Edit password (optional):</span>
-      <input id="pwInput" type="password" placeholder="(if configured)" />
-    </div>
-
-    <div class="row">
-      <button id="loadBtn" class="btn" type="button">Load</button>
-      <button id="saveBtn" class="btn" type="button">Save</button>
-      <button id="clearBtn" class="btn" type="button">Clear</button>
-      <button id="importBtn" class="btn" type="button">Import</button>
-      <button id="previewBtn" class="btn" type="button">Preview</button>
-
-      <input id="fileInput" type="file"
-             accept=".docx,.xlsx,.xls,.pptx,.txt,.html"
-             style="display:none" />
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <h2>HTML content</h2>
-        <div class="small">This is the HTML that will be shown to everyone in the viewer.</div>
-        <textarea id="htmlBox" placeholder="Type or paste HTML here…"></textarea>
-
-        <div class="drop" id="dropZone" style="margin-top:10px;">
-          <strong>Import files</strong>
-          <div class="small">
-            Drop a file here or click Import.
-            Supported: .docx, .xlsx/.xls, .pptx (text extraction), .html/.txt
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Preview</h2>
-        <div class="small">Preview of what the viewer will display.</div>
-        <iframe id="previewFrame"
-          sandbox="allow-same-origin allow-forms allow-popups allow-modals allow-scripts">
-        </iframe>
-      </div>
-    </div>
+    <iframe id="contentFrame"
+      sandbox="allow-same-origin allow-forms allow-popups allow-modals allow-scripts"
+      referrerpolicy="no-referrer">
+    </iframe>
   </div>
 
   <script src="./sheets_api.js"></script>
-
-  <!-- DOCX -> HTML -->
-  <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
-
-  <!-- XLSX -> HTML table -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-  <!-- PPTX -> text extraction (best-effort) -->
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-
   <script>
-    /**
-     * IMPORTANT: set this to your Apps Script Web App URL
-     */
-    const SHEETS_API_URL = "PASTE_YOUR_APPS_SCRIPT_WEBAPP_URL_HERE";
+    // CONFIG: paste your Apps Script Web App URL here
+    const SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbxNPJGn-2Rxm7cx1two7aBQrvM0atcytraXdqnnm44a8aKDf9-7rdR2LHU3XxdmWPU/execE";
+
+    // Single canonical content key (only one version of content exists)
+    const CONTENT_KEY = "staffride_main";
 
     const statusEl = document.getElementById("status");
-    const keyInput = document.getElementById("keyInput");
-    const pwInput = document.getElementById("pwInput");
+    const frame = document.getElementById("contentFrame");
+    const refreshBtn = document.getElementById("refreshBtn");
 
-    const htmlBox = document.getElementById("htmlBox");
-    const previewFrame = document.getElementById("previewFrame");
-
-    const loadBtn = document.getElementById("loadBtn");
-    const saveBtn = document.getElementById("saveBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    const importBtn = document.getElementById("importBtn");
-    const previewBtn = document.getElementById("previewBtn");
-
-    const fileInput = document.getElementById("fileInput");
-    const dropZone = document.getElementById("dropZone");
-
-    function setStatus(msg, kind="meta") {
+    function setStatus(msg) {
       statusEl.textContent = msg;
-      statusEl.className = kind;
     }
 
-    function setPreview(html) {
-      const doc = SheetsAPI.wrapIfFragment(html, { title: "Staff Ride", includeBaseStyles: true });
-      previewFrame.srcdoc = "";
-      requestAnimationFrame(() => previewFrame.srcdoc = doc);
+    function setFrameHtml(html) {
+      frame.srcdoc = "";
+      requestAnimationFrame(() => {
+        frame.srcdoc = html || "<div class='err'>No content returned.</div>";
+      });
     }
 
-    function ensureConfigured() {
+    async function loadLatest() {
       if (!SHEETS_API_URL || SHEETS_API_URL.includes("PASTE_YOUR")) {
-        setStatus("Editor not configured: add your Apps Script URL in editor.html", "err");
-        return false;
+        setStatus("Missing API URL. Edit viewer.html and set SHEETS_API_URL.");
+        setFrameHtml(`<div class="err">
+          Missing Apps Script URL.<br>
+          Open viewer.html and set <code>SHEETS_API_URL</code>.
+        </div>`);
+        return;
       }
-      return true;
-    }
-
-    previewBtn.addEventListener("click", () => {
-      setPreview(htmlBox.value);
-      setStatus("Preview updated.", "ok");
-    });
-
-    loadBtn.addEventListener("click", async () => {
-      if (!ensureConfigured()) return;
-
-      const key = keyInput.value.trim() || "staffride_main";
-      setStatus("Loading…", "meta");
 
       try {
-        const res = await SheetsAPI.getContent({ apiUrl: SHEETS_API_URL, key, cacheBust: true });
+        setStatus("Fetching latest content…");
+        const res = await SheetsAPI.getContent({
+          apiUrl: SHEETS_API_URL,
+          key: CONTENT_KEY,
+          cacheBust: true
+        });
+
         if (!res.ok) {
-          setStatus(`Load failed: ${res.error || res.status}`, "err");
-          return;
-        }
-        htmlBox.value = res.html || "";
-        setPreview(res.html || "");
-        const stamp = res.updated_at ? `Updated: ${res.updated_at}` : "Loaded.";
-        setStatus(stamp, "ok");
-      } catch (e) {
-        console.error(e);
-        setStatus("Load error (see console).", "err");
-      }
-    });
-
-    saveBtn.addEventListener("click", async () => {
-      if (!ensureConfigured()) return;
-
-      const key = keyInput.value.trim() || "staffride_main";
-      const password = pwInput.value || "";
-      const html = htmlBox.value || "";
-
-      setStatus("Saving…", "meta");
-
-      try {
-        const res = await SheetsAPI.saveContent({ apiUrl: SHEETS_API_URL, key, html, password });
-        if (!res.ok) {
-          setStatus(`Save failed: ${res.error || res.status}`, "err");
-          return;
-        }
-        setPreview(res.html || html);
-        setStatus(res.updated_at ? `Saved: ${res.updated_at}` : "Saved.", "ok");
-      } catch (e) {
-        console.error(e);
-        setStatus("Save error (see console).", "err");
-      }
-    });
-
-    clearBtn.addEventListener("click", async () => {
-      if (!ensureConfigured()) return;
-
-      const key = keyInput.value.trim() || "staffride_main";
-      const password = pwInput.value || "";
-
-      if (!confirm(`Clear content for key "${key}"?`)) return;
-
-      setStatus("Clearing…", "meta");
-
-      try {
-        const res = await SheetsAPI.clearContent({ apiUrl: SHEETS_API_URL, key, password });
-        if (!res.ok) {
-          setStatus(`Clear failed: ${res.error || res.status}`, "err");
-          return;
-        }
-        htmlBox.value = "";
-        setPreview("");
-        setStatus(res.updated_at ? `Cleared: ${res.updated_at}` : "Cleared.", "warn");
-      } catch (e) {
-        console.error(e);
-        setStatus("Clear error (see console).", "err");
-      }
-    });
-
-    importBtn.addEventListener("click", () => {
-      fileInput.value = "";
-      fileInput.click();
-    });
-
-    fileInput.addEventListener("change", async (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (file) await importFile(file);
-    });
-
-    // Drag & drop
-    dropZone.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      dropZone.style.background = "#f7fbff";
-    });
-    dropZone.addEventListener("dragleave", () => {
-      dropZone.style.background = "#fff";
-    });
-    dropZone.addEventListener("drop", async (e) => {
-      e.preventDefault();
-      dropZone.style.background = "#fff";
-      const file = e.dataTransfer.files && e.dataTransfer.files[0];
-      if (file) await importFile(file);
-    });
-
-    async function importFile(file) {
-      const name = file.name || "";
-      const ext = name.toLowerCase().split(".").pop();
-
-      try {
-        setStatus(`Importing ${name}…`, "meta");
-
-        if (ext === "html" || ext === "txt") {
-          const text = await file.text();
-          htmlBox.value = text;
-          setPreview(text);
-          setStatus("Imported text/HTML.", "ok");
+          setStatus("Failed to load content.");
+          setFrameHtml(`<div class="err">
+            Failed to load content.<br>
+            Status: ${escapeHtml(String(res.status))}<br>
+            Message: ${escapeHtml(res.error || "Unknown error")}
+          </div>`);
           return;
         }
 
-        if (ext === "docx") {
-          const buf = await file.arrayBuffer();
-          const result = await mammoth.convertToHtml({ arrayBuffer: buf });
-          const fragment = result.value || "";
-          htmlBox.value = fragment;
-          setPreview(fragment);
-          setStatus(result.messages && result.messages.length
-            ? `Imported DOCX (notes: ${result.messages.length}).`
-            : "Imported DOCX.", "ok");
-          return;
-        }
+        const htmlDoc = SheetsAPI.wrapIfFragment(res.html, {
+          title: "Staff Ride",
+          includeBaseStyles: true
+        });
 
-        if (ext === "xlsx" || ext === "xls") {
-          const buf = await file.arrayBuffer();
-          const wb = XLSX.read(buf, { type: "array" });
-          const sheetName = wb.SheetNames[0];
-          const ws = wb.Sheets[sheetName];
-          const html = XLSX.utils.sheet_to_html(ws);
-          // sheet_to_html returns a full HTML document; we want body content
-          const doc = new DOMParser().parseFromString(html, "text/html");
-          const table = doc.querySelector("table");
-          const out = table ? table.outerHTML : html;
-          htmlBox.value = out;
-          setPreview(out);
-          setStatus(`Imported XLSX (${sheetName}).`, "ok");
-          return;
-        }
+        setFrameHtml(htmlDoc);
 
-        if (ext === "pptx") {
-          // Best-effort: extract slide text from pptx (zip of XML)
-          const buf = await file.arrayBuffer();
-          const zip = await JSZip.loadAsync(buf);
-
-          const slidePaths = Object.keys(zip.files)
-            .filter(p => p.startsWith("ppt/slides/slide") && p.endsWith(".xml"))
-            .sort((a,b) => {
-              const na = parseInt(a.match(/slide(\d+)\.xml/i)?.[1] || "0", 10);
-              const nb = parseInt(b.match(/slide(\d+)\.xml/i)?.[1] || "0", 10);
-              return na - nb;
-            });
-
-          let out = `<h1>${escapeHtmlSafe(stripExt(name))}</h1>`;
-          out += `<p><em>Imported from PPTX (text-only extraction).</em></p><hr/>`;
-
-          for (const p of slidePaths) {
-            const xml = await zip.files[p].async("string");
-            const texts = extractPptxTexts(xml);
-            const slideNum = p.match(/slide(\d+)\.xml/i)?.[1] || "";
-            out += `<h2>Slide ${escapeHtmlSafe(slideNum)}</h2>`;
-            if (!texts.length) {
-              out += `<p>(No text found)</p>`;
-            } else {
-              out += "<ul>" + texts.map(t => `<li>${escapeHtmlSafe(t)}</li>`).join("") + "</ul>";
-            }
-          }
-
-          htmlBox.value = out;
-          setPreview(out);
-          setStatus("Imported PPTX (text-only).", "ok");
-          return;
-        }
-
-        setStatus("Unsupported file type. Use .docx, .xlsx/.xls, .pptx, .html, or .txt", "warn");
+        const updated = res.updated_at ? `Updated: ${res.updated_at}` : "Updated: (timestamp unavailable)";
+        setStatus(`${updated} • Source: Google Sheets`);
       } catch (err) {
         console.error(err);
-        setStatus("Import failed (see console).", "err");
-        alert("Import failed. See console for details.");
+        setStatus("Error loading content.");
+        setFrameHtml(`<div class="err">
+          Error loading content. Check console.<br>
+          ${escapeHtml(String(err))}
+        </div>`);
       }
     }
 
-    function stripExt(filename) {
-      return filename.replace(/\.[^/.]+$/, "");
-    }
+    refreshBtn.addEventListener("click", loadLatest);
+    loadLatest();
 
-    function escapeHtmlSafe(s) {
+    function escapeHtml(s) {
       return String(s)
         .replaceAll("&","&amp;")
         .replaceAll("<","&lt;")
         .replaceAll(">","&gt;")
         .replaceAll('"',"&quot;");
     }
-
-    function extractPptxTexts(slideXml) {
-      // PPTX slide text commonly appears in <a:t>text</a:t>
-      const matches = Array.from(slideXml.matchAll(/<a:t>([\s\S]*?)<\/a:t>/g));
-      return matches
-        .map(m => decodeXmlEntities(m[1]))
-        .map(t => t.replace(/\s+/g, " ").trim())
-        .filter(t => t.length);
-    }
-
-    function decodeXmlEntities(s) {
-      // Minimal decode for common entities
-      return String(s)
-        .replaceAll("&amp;", "&")
-        .replaceAll("&lt;", "<")
-        .replaceAll("&gt;", ">")
-        .replaceAll("&quot;", '"')
-        .replaceAll("&apos;", "'");
-    }
-
-    // Auto-load on open
-    (function init() {
-      // Allow key override via URL: editor.html?key=staffride_main
-      const urlKey = SheetsAPI.getUrlParam("key", "");
-      if (urlKey) keyInput.value = urlKey;
-
-      htmlBox.value = "<h1>Staff Ride</h1><p>Click Load to fetch current content from Google Sheets.</p>";
-      setPreview(htmlBox.value);
-      setStatus("Ready. Set API URL, then Load.", "meta");
-    })();
   </script>
 </body>
 </html>
