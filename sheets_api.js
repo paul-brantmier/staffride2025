@@ -94,62 +94,47 @@ ${s}
     return { ok: true, status: resp.status, key, html: text, updated_at: "", updated_by: "" };
   }
 
-  async function saveContent({ apiUrl, key, html, password = "" }) {
-    const url = new URL(apiUrl);
-    url.searchParams.set("action", "save");
-
-    const form = new URLSearchParams();
-    form.set("key", key || "staffride_main");
-    form.set("html", String(html || ""));
-    form.set("password", String(password || ""));
-
-    const resp = await fetch(url.toString(), {
-      method: "POST",
-      cache: "no-store",
-      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-      body: form.toString()
-    });
-
-    const text = await resp.text();
-    let data = null;
-    try { data = JSON.parse(text); } catch {}
-
-    if (!resp.ok) {
-      return { ok: false, status: resp.status, error: (data && data.error) ? data.error : text };
-    }
-
-    return (data && typeof data === "object")
-      ? { ok: !!data.ok, status: resp.status, key: data.key, html: data.html || "", updated_at: data.updated_at || "", updated_by: data.updated_by || "", error: data.error || "" }
-      : { ok: true, status: resp.status, key, html: text, updated_at: "", updated_by: "" };
   }
 
-  async function clearContent({ apiUrl, key, password = "" }) {
-    const url = new URL(apiUrl);
-    url.searchParams.set("action", "clear");
+async function saveContent({ apiUrl, key, html, password = "" }) {
+  const url = new URL(apiUrl);
+  url.searchParams.set("action", "save");
 
-    const form = new URLSearchParams();
-    form.set("key", key || "staffride_main");
-    form.set("password", String(password || ""));
+  const form = new URLSearchParams();
+  form.set("key", key || "staffride_main");
+  form.set("html", String(html || ""));
+  form.set("password", String(password || ""));
 
-    const resp = await fetch(url.toString(), {
-      method: "POST",
-      cache: "no-store",
-      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-      body: form.toString()
-    });
+  // Send the write without needing CORS-readable response
+  await fetch(url.toString(), {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+    body: form.toString()
+  });
 
-    const text = await resp.text();
-    let data = null;
-    try { data = JSON.parse(text); } catch {}
+  // Confirm by reloading canonical content via GET
+  return await getContent({ apiUrl, key, cacheBust: true });
+}
 
-    if (!resp.ok) {
-      return { ok: false, status: resp.status, error: (data && data.error) ? data.error : text };
-    }
+ async function clearContent({ apiUrl, key, password = "" }) {
+  const url = new URL(apiUrl);
+  url.searchParams.set("action", "clear");
 
-    return (data && typeof data === "object")
-      ? { ok: !!data.ok, status: resp.status, key: data.key, html: data.html || "", updated_at: data.updated_at || "", updated_by: data.updated_by || "", error: data.error || "" }
-      : { ok: true, status: resp.status, key, html: "", updated_at: "", updated_by: "" };
-  }
+  const form = new URLSearchParams();
+  form.set("key", key || "staffride_main");
+  form.set("password", String(password || ""));
+
+  await fetch(url.toString(), {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+    body: form.toString()
+  });
+
+  return await getContent({ apiUrl, key, cacheBust: true });
+}
+
 
   return {
     getContent,
