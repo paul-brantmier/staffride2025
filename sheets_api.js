@@ -57,43 +57,71 @@ ${s}
 </html>`;
   }
 
-  async function getContent({ apiUrl, key, cacheBust = true }) {
-    const url = new URL(apiUrl);
-    url.searchParams.set("action", "get");
-    url.searchParams.set("key", key || "staffride_main");
+  
 
-    const finalUrl = cacheBust ? withCacheBust(url.toString()) : url.toString();
 
-    const resp = await fetch(finalUrl, {
-      method: "GET",
-      cache: "no-store",
-      redirect: "follow",
-      headers: { "Accept": "application/json,text/plain,*/*" }
-    });
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const cbName = "__jsonp_cb_" + Math.random().toString(36).slice(2);
+    const script = document.createElement("script");
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error("JSONP timeout"));
+    }, 15000);
 
-    const text = await resp.text();
-    let data = null;
-    try { data = JSON.parse(text); } catch {}
-
-    if (!resp.ok) {
-      return { ok: false, status: resp.status, error: (data && data.error) ? data.error : text };
+    function cleanup() {
+      clearTimeout(timeout);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
     }
 
-    if (data && typeof data === "object") {
-      return {
-        ok: !!data.ok,
-        status: resp.status,
-        key: data.key || (key || "staffride_main"),
-        html: data.html || "",
-        updated_at: data.updated_at || "",
-        updated_by: data.updated_by || "",
-        error: data.error || ""
-      };
-    }
+    window[cbName] = (data) => {
+      cleanup();
+      resolve(data);
+    };
 
-    return { ok: true, status: resp.status, key, html: text, updated_at: "", updated_by: "" };
-  }
+    const u = new URL(url);
+    u.searchParams.set("callback", cbName);
+    u.searchParams.set("cb", String(Date.now())); // cache bust
 
+    script.src = u.toString();
+    script.onerror = () => {
+      cleanup();
+      reject(new Error("JSONP load failed"));
+    };
+
+    document.head.appendChild(script);
+  });
+}
+
+async function getContent({ apiUrl, key }) {
+  const url = new URL(apiUrl);
+  url.searchParams.set("action", "get");
+  url.searchParams.set("key", key || "staffride_main");
+
+  const data = await jsonp(url.toString());
+
+  // Normalize to same shape your app expects
+  return {
+    ok: !!data.ok,
+    status: 200,
+    key: data.key || (key || "staffride_main"),
+    html: data.html || "",
+    updated_at: data.updated_at || "",
+    updated_by: data.updated_by || "",
+    error: data.error || ""
+  };
+}
+
+
+
+
+
+
+
+
+
+  
   }
 
 async function saveContent({ apiUrl, key, html, password = "" }) {
